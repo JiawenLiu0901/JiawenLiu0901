@@ -1,0 +1,95 @@
+baseURL = "https://JiawenLiu0901.github.io/"
+
+theme = "LoveIt"
+
+
+title = "JIAWENLIU-blog"
+
+defaultContentLanguage = "zh-cn"
+languageCode = "zh-CN"
+languageName = "简体中文"
+hasCJKLanguage = true
+
+[author]
+  name = "JIAWENLIU"
+  email = "10791894@qq.com"
+  link = "https://JiawenLiu0901.github.io/"
+
+[menu]
+  [[menu.main]]
+    weight = 1
+    identifier = "posts"
+    pre = ""
+    post = ""
+    name = "Posts"
+    url = "/posts/"
+    title = ""
+  [[menu.main]]
+    weight = 2
+    identifier = "tags"
+    pre = ""
+    post = ""
+    name = "Tags"
+    url = "/tags/"
+    title = ""
+  [[menu.main]]
+    weight = 3
+    identifier = "categories"
+    pre = ""
+    post = ""
+    name = "Categories"
+    url = "/categories/"
+    title = ""
+  [[menu.main]]
+    weight = 5
+    identifier = "about"
+    pre = ""
+    post = ""
+    name = "About"
+    url = "/about/"
+    title = ""
+  [[menu.main]]
+    weight = 6
+    identifier = "github"
+    pre = "<i class='fab fa-github fa-fw' aria-hidden='true'></i>"
+    post = ""
+    name = ""
+    url = "https://github.com/JiawenLiu0901"
+    title = "GitHub"
+
+[params]
+  title = "JIAWENLIU-blog"
+  description = "JIAWENLIU的博客"
+
+  [params.header]
+    [params.header.title]
+      name = "JIAWENLIU-blog"
+      pre = "<i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i>"
+
+  [params.footer]
+    enable = true
+    hugo = true
+    copyright = true
+    author = true
+    since = 2020
+    license= '<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a>'
+
+  # App icon config
+  [params.app]
+    # optional site title override for the app when added to an iOS home screen or Android launcher
+    title = "JIAWENLIU-blog"
+
+  [params.home]
+    [params.home.profile]
+      enable = true
+      avatarURL = "/images/LJW.png"
+      subtitle = "半缘修道半缘君"
+  [params.social]
+    GitHub = "JiawenLiu0901"
+    Email = "10791894@qq.com"
+
+  [params.search]
+    enable = false
+
+  [params.page.comment]
+    enable = false
