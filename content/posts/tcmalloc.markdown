@@ -1,3 +1,16 @@
+---
+weight: 4
+title: "ThreadLocal内存管理"
+date: 2023-03-20T21:57:40+08:00
+lastmod: 2023-03-20T16:45:40+08:00
+draft: false
+author: "Jiawen Liu"
+authorLink: "https://jiawenliu0901.github.io"
+description: "TCMalloc知识点整理总结"
+tags: ["Threadlocal项目"]
+categories: ["Threadlocal项目"]
+lightgallery: true
+---
 # tcmalloc常见题目
 
 ## 什么是TCMalloc？它与标准内存分配器有何不同？
