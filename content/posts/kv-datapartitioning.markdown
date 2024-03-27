@@ -1,3 +1,16 @@
+---
+weight: 4
+title: "KV分布式项目-数据分区知识点整理总结"
+date: 2023-03-20T21:57:40+08:00
+lastmod: 2023-03-20T16:45:40+08:00
+draft: false
+author: "Jiawen Liu"
+authorLink: "https://dillonzq.com"
+description: "一致性哈希、范围分区、散列分区知识点整理总结"
+tags: ["KV分布式项目"]
+categories: ["KV分布式项目"]
+lightgallery: true
+---
 # 一致性哈希
 
 ## 请解释一致性哈希算法的基本概念和原理是什么？
