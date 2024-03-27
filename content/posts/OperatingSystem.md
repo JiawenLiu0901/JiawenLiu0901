@@ -1,16 +1,15 @@
- ---
+---
 weight: 4
 title: "操作系统知识点整理总结"
 date: 2023-03-20T21:57:40+08:00
 lastmod: 2023-03-20T16:45:40+08:00
 draft: false
 author: "Jiawen Liu"
-authorLink: "https://dillonzq.com"
+authorLink: "https://jiawenliu0901.github.io"
 description: "操作系统知识点整理总结"
-tags: ["Operating System"]
-categories: ["Operating System"]
+tags: ["操作系统八股文"]
+categories: ["操作系统"]
 lightgallery: true
-
 ---
 # 操作系统常见面试题
 
