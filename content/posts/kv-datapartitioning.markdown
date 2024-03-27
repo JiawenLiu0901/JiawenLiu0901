@@ -5,7 +5,7 @@ date: 2023-03-20T21:57:40+08:00
 lastmod: 2023-03-20T16:45:40+08:00
 draft: false
 author: "Jiawen Liu"
-authorLink: "https://dillonzq.com"
+authorLink: "https://jiawenliu0901.github.io"
 description: "一致性哈希、范围分区、散列分区知识点整理总结"
 tags: ["KV分布式项目"]
 categories: ["KV分布式项目"]
