@@ -1,3 +1,16 @@
+---
+weight: 4
+title: "C++知识点整理总结"
+date: 2023-03-20T21:57:40+08:00
+lastmod: 2023-03-20T16:45:40+08:00
+draft: false
+author: "Jiawen Liu"
+authorLink: "https://jiawenliu0901.github.io"
+description: "C++知识点整理总结"
+tags: ["C++"]
+categories: ["C++八股"]
+lightgallery: true
+---
 # C++ 常见问题(补充)
 
 ## C++基础
