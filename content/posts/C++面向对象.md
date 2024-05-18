@@ -2,7 +2,7 @@
 weight: 4
 title: "C++面向对象"
 date: 2023-03-20T21:57:40+08:00
-lastmod: 2023-03-20T16:45:40+08:00
+lastmod: 2023-05-18T16:45:40+08:00
 draft: false
 author: "Jiawen Liu"
 authorLink: "https://jiawenliu0901.github.io"
@@ -17,40 +17,206 @@ lightgallery: true
 
 ### 什么是移动构造函数(move constructor)和移动赋值运算符(move assignment operator)？
 
+移动构造函数（Move Constructor）和移动赋值运算符（Move Assignment Operator）是C++11引入的两个特殊的成员函数，它们的目的是实现移动语义（Move Semantics），以提高程序的性能。
+
+1. 移动构造函数（Move Constructor）：
+
+移动构造函数是一种特殊的构造函数，它接受一个右值引用作为参数，用于在对象之间转移资源的所有权，而不是拷贝资源。移动构造函数的语法如下：
+
+```cpp
+class_name(class_name&& other);
+```
+
+示例：
+```cpp
+class MyString {
+public:
+    // Move constructor
+    MyString(MyString&& other) : data(other.data) {
+        other.data = nullptr;
+    }
+
+private:
+    char* data;
+};
+```
+
+在这个例子中，移动构造函数接受一个右值引用参数，将`other.data`的所有权转移给新构造的对象，并将`other.data`设置为`nullptr`，避免了不必要的内存拷贝操作。
+
+2. 移动赋值运算符（Move Assignment Operator）：
+
+移动赋值运算符是一种特殊的赋值运算符，它接受一个右值引用作为参数，用于在对象之间转移资源的所有权，而不是拷贝资源。移动赋值运算符的语法如下：
+
+```cpp
+class_name& operator=(class_name&& other);
+```
+
+示例：
+```cpp
+class MyString {
+public:
+    // Move assignment operator
+    MyString& operator=(MyString&& other) {
+        if (this != &other) {
+            delete[] data;
+            data = other.data;
+            other.data = nullptr;
+        }
+        return *this;
+    }
+
+private:
+    char* data;
+};
+```
+
+在这个例子中，移动赋值运算符首先检查是否为自我赋值，然后释放当前对象的资源，将`other.data`的所有权转移给当前对象，并将`other.data`设置为`nullptr`。最后返回当前对象的引用。
+
+移动构造函数和移动赋值运算符的存在，使得对象可以高效地在不同的上下文之间转移资源的所有权，避免了不必要的拷贝操作，提高了程序的性能。编译器会在适当的情况下自动调用移动构造函数和移动赋值运算符，例如在返回临时对象或将对象存储在容器中时。
+
+需要注意的是，在实现移动构造函数和移动赋值运算符时，要确保转移后的源对象处于一个合法的状态，可以安全地销毁，避免出现悬空引用或资源泄漏等问题。
 ### 什么是拷贝构造函数？
 
-用于通过已经存在的对象创建一个新的对象，新对象是原对象的副本，参数通常是对同类型对象的引用。
+拷贝构造函数（Copy Constructor）是一种特殊的构造函数，用于创建一个新对象，并将其初始化为另一个同类型对象的副本。当需要复制一个对象时，编译器会自动调用拷贝构造函数。
+
+拷贝构造函数的语法如下：
+
+```cpp
+class_name(const class_name& other);
+```
+
+其中，`other`是要复制的源对象的常量引用。
+
+示例：
+```cpp
+class MyClass {
+public:
+    MyClass(int value) : data(value) {}
+
+    // Copy constructor
+    MyClass(const MyClass& other) : data(other.data) {}
+
+private:
+    int data;
+};
+```
+
+在这个例子中，拷贝构造函数接受一个`MyClass`对象的常量引用作为参数，并将`other.data`的值复制给新对象的`data`成员。
+
+**拷贝构造函数的调用时机**：
+
+1. 当一个对象以值传递的方式传递给函数时。
+2. 当函数返回一个对象时。
+3. 当一个对象被初始化为另一个同类型的对象时。
+
+示例：
+```cpp
+MyClass obj1(42);
+MyClass obj2(obj1);  // 调用拷贝构造函数
+MyClass obj3 = obj1; // 调用拷贝构造函数
+
+void func(MyClass obj) {} // 传递对象时调用拷贝构造函数
+
+MyClass createObject() {
+    MyClass obj(42);
+    return obj; // 返回对象时调用拷贝构造函数
+}
+```
+
+如果一个类没有显式定义拷贝构造函数，编译器会自动生成一个默认的拷贝构造函数，该函数会执行逐个成员的复制（浅拷贝）。但是，如果类中包含指针成员或动态分配的资源，那么默认的拷贝构造函数可能会导致问题，如多个对象共享相同的资源，导致内存泄漏或悬空指针等。在这种情况下，需要显式定义拷贝构造函数，以实现深拷贝，即复制指针指向的内容，而不仅仅是复制指针本身。
+
+总之，拷贝构造函数是C++中实现对象复制的重要机制，了解其工作原理和正确使用可以帮助我们编写更加健壮和高效的代码。
 
 ### 什么是赋值运算符(assignment operator)？
 
+赋值运算符（Assignment Operator）是一种特殊的运算符，用于将一个对象的值赋给另一个已存在的对象。在C++中，赋值运算符是一个成员函数，其语法如下：
+
+```cpp
+class_name& operator=(const class_name& other);
+```
+
+其中，`other`是要复制的源对象的常量引用，函数返回当前对象的引用，以支持连续赋值的操作。
+
+示例：
+```cpp
+class MyClass {
+public:
+    MyClass(int value) : data(value) {}
+
+    // Assignment operator
+    MyClass& operator=(const MyClass& other) {
+        if (this != &other) {
+            data = other.data;
+        }
+        return *this;
+    }
+
+private:
+    int data;
+};
+```
+
+在这个例子中，赋值运算符首先检查是否为自我赋值（即源对象和目标对象是同一个对象），然后将`other.data`的值赋给当前对象的`data`成员，最后返回当前对象的引用。
+
+在定义赋值运算符时，需要注意以下几点：
+
+1. 检查自我赋值，避免不必要的操作和潜在的问题。
+2. 在赋值之前，先释放当前对象拥有的资源，避免内存泄漏。
+3. 正确处理异常，确保异常发生时对象状态的一致性。
+
+总之，赋值运算符是C++中实现对象赋值的重要机制，了解其工作原理和正确使用可以帮助我们编写更加健壮和高效的代码。
 
 ### 什么是默认构造函数（default constructor)？
 
-默认构造函数指的是一个没有任何参数的构造函数，如果没有一个这样的构造函数存在，或者是private的话，会造成编译错误。如果类里面没有提供任何的构造函数，编译器会提供一个implicit default constructor。如果类里面已经定义过了构造函数，我们就要手动定义默认构造函数，这样的默认构造函数称之为explicit default constructor
+默认构造函数指的是一个没有任何参数的构造函数，如果没有一个这样的构造函数存在，或者是private的话，会造成编译错误。如果类里面没有提供任何的构造函数，编译器会提供一个implicit default constructor。如果类里面已经定义过了构造函数，我们就要手动定义默认构造函数，使用= default来要求编译器生成。
 
-### 什么时候会调用拷贝构造函数（copy constructor）？
-
-	- 对象初始化： 当一个对象通过另一个对象进行初始化时，拷贝构造函数会被调用。这包括对象的直接初始化和拷贝初始化。
-
-	- 函数参数传递： 当一个对象作为函数的参数传递给另一个函数时，拷贝构造函数会被调用。
-
-	- 函数返回值： 当一个函数返回一个对象时，拷贝构造函数会被调用，将函数内部的局部对象复制到函数外部。
-MyClass createObject() {
-    // 拷贝构造函数在这里被调用
-    return MyClass();
-}
-
-	- 对象赋值： 当一个对象被另一个对象赋值时，拷贝构造函数会被调用。MyClass obj2 = obj1;
 
 ### 什么时候会调用赋值运算符？
 
-	- 显示赋值操作
+赋值运算符通常在以下情况下被调用：
 
-	- 初始化对象
+1. 显式赋值操作：当你使用赋值运算符`=`将一个对象赋值给另一个已存在的对象时，会调用赋值运算符。
 
-	- 返回值赋值
+```cpp
+MyClass obj1(42);
+MyClass obj2(0);
+obj2 = obj1; // 调用赋值运算符
+```
 
-	- 成员函数返回对象
+2. 函数参数传递：当一个对象作为函数参数按值传递时，虽然调用的是拷贝构造函数，但如果在函数内部对该对象进行了赋值操作，就会调用赋值运算符。
+
+```cpp
+void func(MyClass obj) {
+    MyClass obj2(0);
+    obj2 = obj; // 调用赋值运算符
+}
+
+MyClass obj1(42);
+func(obj1);
+```
+
+3. 函数返回值：当函数返回一个对象，且该对象是通过赋值操作创建的，会调用赋值运算符。
+
+```cpp
+MyClass createObject() {
+    MyClass obj(42);
+    return obj; // 先调用拷贝构造函数，再调用赋值运算符
+}
+
+MyClass obj = createObject();
+```
+
+4. 容器元素赋值：当你将一个对象赋值给容器（如`std::vector`、`std::map`等）中的元素时，会调用赋值运算符。
+
+```cpp
+std::vector<MyClass> vec(10);
+MyClass obj(42);
+vec[0] = obj; // 调用赋值运算符
+```
+
+5. 其他隐式赋值操作：在某些特定情况下，编译器可能会隐式调用赋值运算符，例如在使用算法库（如`std::fill`、`std::copy`等）时。
+
+需要注意的是，如果你没有显式定义赋值运算符，编译器会自动生成一个默认的赋值运算符，该运算符会执行逐个成员的赋值（浅拷贝）。但是，如果类中包含指针成员或动态分配的资源，那么默认的赋值运算符可能会导致问题，如多个对象共享相同的资源，导致内存泄漏或悬空指针等。因此，在这种情况下，你需要自己定义赋值运算符，以确保正确的行为和资源管理。
 
 ### 如何实现深拷贝和浅拷贝？
 	- 深拷贝：深拷贝是指在拷贝对象时，会同时复制对象所引用的动态分配的内存。这样，两个对象拥有独立的内存空间，互不影响。实现深拷贝通常需要手动编写拷贝构造函数和/或赋值运算符，确保在拷贝对象时分配新的内存并复制数据。
@@ -71,123 +237,123 @@ MyClass createObject() {
 
 ### 什么是 RAII（Resource Acquisition Is Initialization）技术，如何使用它来管理资源？
 
-	RAII（Resource Acquisition Is Initialization）是一种管理资源的编程技术，主要用于 C++ 中。该技术的核心思想是：**资源的获取与对象的初始化绑定，资源的释放与对象的销毁绑定**。这样，当对象的生命周期结束时，资源会被自动释放，从而有效地避免资源泄漏问题。
-	
-	RAII 的核心原理
-	
-	1. **资源获取与对象初始化绑定**：在对象的构造函数中获取资源（如内存、文件句柄、网络连接等）。
-	2. **资源释放与对象销毁绑定**：在对象的析构函数中释放资源。当对象超出其作用域或被显式删除时，析构函数会被调用，确保资源被正确释放。
-	
-	如何使用 RAII 来管理资源
-	
-	以下是一些常见的 RAII 资源管理示例：
-	
-	1. 使用智能指针管理动态内存
-	
-	智能指针是 RAII 的典型应用，用于管理动态分配的内存。`std::unique_ptr` 和 `std::shared_ptr` 是 C++ 标准库中的智能指针。
-	
-	```cpp
-	#include <iostream>
-	#include <memory>
-	
-	class MyClass {
-	public:
-	    MyClass() { std::cout << "MyClass constructor" << std::endl; }
-	    ~MyClass() { std::cout << "MyClass destructor" << std::endl; }
-	};
-	
-	int main() {
-	    {
-	        std::unique_ptr<MyClass> ptr = std::make_unique<MyClass>();
-	        // 当 ptr 超出作用域时，MyClass 对象会自动被销毁，内存被释放
-	    }
-	    // 这里 MyClass 对象已经被销毁
-	
-	    {
-	        std::shared_ptr<MyClass> ptr1 = std::make_shared<MyClass>();
-	        {
-	            std::shared_ptr<MyClass> ptr2 = ptr1;  // 共享所有权
-	        }
-	        // ptr2 超出作用域，MyClass 对象仍然存在，因为 ptr1 还持有它
-	    }
-	    // 这里 MyClass 对象被销毁
-	
-	    return 0;
+RAII（Resource Acquisition Is Initialization）是一种管理资源的编程技术，主要用于 C++ 中。该技术的核心思想是：**资源的获取与对象的初始化绑定，资源的释放与对象的销毁绑定**。这样，当对象的生命周期结束时，资源会被自动释放，从而有效地避免资源泄漏问题。
+
+RAII 的核心原理
+
+1. **资源获取与对象初始化绑定**：在对象的构造函数中获取资源（如内存、文件句柄、网络连接等）。
+2. **资源释放与对象销毁绑定**：在对象的析构函数中释放资源。当对象超出其作用域或被显式删除时，析构函数会被调用，确保资源被正确释放。
+
+如何使用 RAII 来管理资源
+
+以下是一些常见的 RAII 资源管理示例：
+
+1. 使用智能指针管理动态内存
+
+智能指针是 RAII 的典型应用，用于管理动态分配的内存。`std::unique_ptr` 和 `std::shared_ptr` 是 C++ 标准库中的智能指针。
+
+```cpp
+#include <iostream>
+#include <memory>
+
+class MyClass {
+public:
+    MyClass() { std::cout << "MyClass constructor" << std::endl; }
+    ~MyClass() { std::cout << "MyClass destructor" << std::endl; }
+};
+
+int main() {
+    {
+	std::unique_ptr<MyClass> ptr = std::make_unique<MyClass>();
+	// 当 ptr 超出作用域时，MyClass 对象会自动被销毁，内存被释放
+    }
+    // 这里 MyClass 对象已经被销毁
+
+    {
+	std::shared_ptr<MyClass> ptr1 = std::make_shared<MyClass>();
+	{
+	    std::shared_ptr<MyClass> ptr2 = ptr1;  // 共享所有权
 	}
-	```
-	
-	2. 使用自定义类管理文件句柄
-	
-	可以定义一个类来封装文件操作，利用 RAII 技术确保文件在使用结束后自动关闭。
-	
-	```cpp
-	#include <iostream>
-	#include <fstream>
-	
-	class FileRAII {
-	private:
-	    std::ofstream file;
-	public:
-	    FileRAII(const std::string &filename) {
-	        file.open(filename);
-	        if (!file.is_open()) {
-	            throw std::runtime_error("Failed to open file");
-	        }
-	    }
-	    
-	    ~FileRAII() {
-	        if (file.is_open()) {
-	            file.close();
-	        }
-	    }
-	
-	    void write(const std::string &data) {
-	        if (file.is_open()) {
-	            file << data;
-	        }
-	    }
-	};
-	
-	int main() {
-	    try {
-	        FileRAII file("example.txt");
-	        file.write("Hello, RAII!");
-	        // 文件在这里被自动关闭
-	    } catch (const std::exception &e) {
-	        std::cerr << e.what() << std::endl;
-	    }
-	
-	    return 0;
+	// ptr2 超出作用域，MyClass 对象仍然存在，因为 ptr1 还持有它
+    }
+    // 这里 MyClass 对象被销毁
+
+    return 0;
+}
+```
+
+2. 使用自定义类管理文件句柄
+
+可以定义一个类来封装文件操作，利用 RAII 技术确保文件在使用结束后自动关闭。
+
+```cpp
+#include <iostream>
+#include <fstream>
+
+class FileRAII {
+private:
+    std::ofstream file;
+public:
+    FileRAII(const std::string &filename) {
+	file.open(filename);
+	if (!file.is_open()) {
+	    throw std::runtime_error("Failed to open file");
 	}
-	```
-	
-	3. 使用标准库中的锁机制
-	
-	C++ 标准库提供了 RAII 风格的锁机制，如 `std::lock_guard` 和 `std::unique_lock`，用于确保互斥锁在使用结束时被自动释放。
-	
-	```cpp
-	#include <iostream>
-	#include <thread>
-	#include <mutex>
-	
-	std::mutex mtx;
-	
-	void print_thread_id(int id) {
-	    std::lock_guard<std::mutex> lock(mtx);
-	    // 在锁的作用域结束时，mtx 会自动解锁
-	    std::cout << "Thread ID: " << id << std::endl;
+    }
+    
+    ~FileRAII() {
+	if (file.is_open()) {
+	    file.close();
 	}
-	
-	int main() {
-	    std::thread t1(print_thread_id, 1);
-	    std::thread t2(print_thread_id, 2);
-	
-	    t1.join();
-	    t2.join();
-	
-	    return 0;
+    }
+
+    void write(const std::string &data) {
+	if (file.is_open()) {
+	    file << data;
 	}
-	```
+    }
+};
+
+int main() {
+    try {
+	FileRAII file("example.txt");
+	file.write("Hello, RAII!");
+	// 文件在这里被自动关闭
+    } catch (const std::exception &e) {
+	std::cerr << e.what() << std::endl;
+    }
+
+    return 0;
+}
+```
+
+3. 使用标准库中的锁机制
+
+C++ 标准库提供了 RAII 风格的锁机制，如 `std::lock_guard` 和 `std::unique_lock`，用于确保互斥锁在使用结束时被自动释放。
+
+```cpp
+#include <iostream>
+#include <thread>
+#include <mutex>
+
+std::mutex mtx;
+
+void print_thread_id(int id) {
+    std::lock_guard<std::mutex> lock(mtx);
+    // 在锁的作用域结束时，mtx 会自动解锁
+    std::cout << "Thread ID: " << id << std::endl;
+}
+
+int main() {
+    std::thread t1(print_thread_id, 1);
+    std::thread t2(print_thread_id, 2);
+
+    t1.join();
+    t2.join();
+
+    return 0;
+}
+```
 
 ### 什么是智能指针？如何防止内存泄漏？
 智能指针是一种在面向对象编程中用于自动管理动态分配内存的工具。它们封装了原生指针，并提供了自动化的内存管理功能，以减少内存泄漏和指针操作错误。智能指针在对象生命周期结束时自动释放内存，因此不需要显式地进行内存释放操作。
@@ -287,9 +453,7 @@ int main() {
 
 ### 如何重载运算符？
 
-	- 通过成员函数重载
-
-	- 通过全局函数重载
+	
 
 ### 重载哪些运算符是合法的？
 	- 可以重载的运算符
