@@ -356,8 +356,71 @@ int main() {
 	- 通过在继承路径中使用virtual关键字，可以避免在派生类中生成多个基类的实例，从而解决了菱形继承带来的二义性。
 
 - 什么是右值引用？如何使用右值引用？（C++11新特性）
-
-	- https://www.jianshu.com/p/d19fc8447eaa
+	右值引用（Rvalue Reference）是C++11引入的一种新的引用类型，它用于绑定到临时对象或不具名的值（如字面量、表达式等）。右值引用的主要目的是实现移动语义（Move Semantics），以提高程序的性能。
+	
+	右值引用的语法是在类型名称后面加上两个&符号（&&），例如：
+	
+	```cpp
+	int&& rref = 42;
+	```
+	
+	右值引用的特点：
+	1. 绑定到临时对象或不具名的值。
+	2. 允许从临时对象或不具名的值中"窃取"资源，避免不必要的拷贝操作。
+	3. 可以用于实现移动构造函数和移动赋值运算符。
+	4. 具有延长临时对象生命周期的能力。
+	
+	使用右值引用的几种常见方式：
+	
+	1. 实现移动构造函数和移动赋值运算符：
+	```cpp
+	class MyString {
+	public:
+	    // Move constructor
+	    MyString(MyString&& other) : data(other.data) {
+	        other.data = nullptr;
+	    }
+	
+	    // Move assignment operator
+	    MyString& operator=(MyString&& other) {
+	        if (this != &other) {
+	            delete[] data;
+	            data = other.data;
+	            other.data = nullptr;
+	        }
+	        return *this;
+	    }
+	
+	private:
+	    char* data;
+	};
+	```
+	
+	2. 使用`std::move`将左值转换为右值，以便调用移动构造函数或移动赋值运算符：
+	```cpp
+	MyString str1("Hello");
+	MyString str2(std::move(str1)); // 调用移动构造函数
+	str1 = MyString("World"); // 调用移动赋值运算符
+	```
+	
+	3. 在模板函数中使用右值引用作为参数，以实现完美转发（Perfect Forwarding）：
+	```cpp
+	template <typename T>
+	void forwardValue(T&& value) {
+	    processValue(std::forward<T>(value));
+	}
+	```
+	
+	4. 在函数返回值中使用右值引用，以避免不必要的拷贝操作：
+	```cpp
+	MyString createString() {
+	    MyString str("Hello");
+	    return std::move(str);
+	}
+	```
+	
+	使用右值引用可以显著提高程序的性能，特别是在处理大型对象或需要频繁移动对象时。但是，使用右值引用也需要注意一些细节，如确保移动后的对象处于合法状态、避免悬空引用等。同时，也要平衡可读性和性能，不要过度追求性能而牺牲代码的可读性和维护性。
+		
 
 - 什么是移动构造函数？为什么需要移动构造函数？
 
