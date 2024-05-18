@@ -71,131 +71,210 @@ MyClass createObject() {
     }
 
 - 什么是 RAII（Resource Acquisition Is Initialization）技术，如何使用它来管理资源？
-RAII（Resource Acquisition Is Initialization）是一种管理资源的编程技术，主要用于 C++ 中。该技术的核心思想是：**资源的获取与对象的初始化绑定，资源的释放与对象的销毁绑定**。这样，当对象的生命周期结束时，资源会被自动释放，从而有效地避免资源泄漏问题。
 
-RAII 的核心原理
-
-1. **资源获取与对象初始化绑定**：在对象的构造函数中获取资源（如内存、文件句柄、网络连接等）。
-2. **资源释放与对象销毁绑定**：在对象的析构函数中释放资源。当对象超出其作用域或被显式删除时，析构函数会被调用，确保资源被正确释放。
-
-如何使用 RAII 来管理资源
-
-以下是一些常见的 RAII 资源管理示例：
-
-1. 使用智能指针管理动态内存
-
-智能指针是 RAII 的典型应用，用于管理动态分配的内存。`std::unique_ptr` 和 `std::shared_ptr` 是 C++ 标准库中的智能指针。
-
-```cpp
-#include <iostream>
-#include <memory>
-
-class MyClass {
-public:
-    MyClass() { std::cout << "MyClass constructor" << std::endl; }
-    ~MyClass() { std::cout << "MyClass destructor" << std::endl; }
-};
-
-int main() {
-    {
-        std::unique_ptr<MyClass> ptr = std::make_unique<MyClass>();
-        // 当 ptr 超出作用域时，MyClass 对象会自动被销毁，内存被释放
-    }
-    // 这里 MyClass 对象已经被销毁
-
-    {
-        std::shared_ptr<MyClass> ptr1 = std::make_shared<MyClass>();
-        {
-            std::shared_ptr<MyClass> ptr2 = ptr1;  // 共享所有权
-        }
-        // ptr2 超出作用域，MyClass 对象仍然存在，因为 ptr1 还持有它
-    }
-    // 这里 MyClass 对象被销毁
-
-    return 0;
-}
-```
-
-2. 使用自定义类管理文件句柄
-
-可以定义一个类来封装文件操作，利用 RAII 技术确保文件在使用结束后自动关闭。
-
-```cpp
-#include <iostream>
-#include <fstream>
-
-class FileRAII {
-private:
-    std::ofstream file;
-public:
-    FileRAII(const std::string &filename) {
-        file.open(filename);
-        if (!file.is_open()) {
-            throw std::runtime_error("Failed to open file");
-        }
-    }
-    
-    ~FileRAII() {
-        if (file.is_open()) {
-            file.close();
-        }
-    }
-
-    void write(const std::string &data) {
-        if (file.is_open()) {
-            file << data;
-        }
-    }
-};
-
-int main() {
-    try {
-        FileRAII file("example.txt");
-        file.write("Hello, RAII!");
-        // 文件在这里被自动关闭
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-    }
-
-    return 0;
-}
-```
-
-3. 使用标准库中的锁机制
-
-C++ 标准库提供了 RAII 风格的锁机制，如 `std::lock_guard` 和 `std::unique_lock`，用于确保互斥锁在使用结束时被自动释放。
-
-```cpp
-#include <iostream>
-#include <thread>
-#include <mutex>
-
-std::mutex mtx;
-
-void print_thread_id(int id) {
-    std::lock_guard<std::mutex> lock(mtx);
-    // 在锁的作用域结束时，mtx 会自动解锁
-    std::cout << "Thread ID: " << id << std::endl;
-}
-
-int main() {
-    std::thread t1(print_thread_id, 1);
-    std::thread t2(print_thread_id, 2);
-
-    t1.join();
-    t2.join();
-
-    return 0;
-}
-```
-
-总结
-
-RAII 技术通过将资源的获取和释放与对象的生命周期绑定，有效地管理了资源的分配和释放，避免了资源泄漏和其他资源管理错误。这种技术广泛应用于 C++ 编程中，从动态内存管理到文件操作，再到线程同步，都可以看到 RAII 的身影。通过使用 RAII，程序员可以编写出更加安全和可靠的代码。
+	RAII（Resource Acquisition Is Initialization）是一种管理资源的编程技术，主要用于 C++ 中。该技术的核心思想是：**资源的获取与对象的初始化绑定，资源的释放与对象的销毁绑定**。这样，当对象的生命周期结束时，资源会被自动释放，从而有效地避免资源泄漏问题。
+	
+	RAII 的核心原理
+	
+	1. **资源获取与对象初始化绑定**：在对象的构造函数中获取资源（如内存、文件句柄、网络连接等）。
+	2. **资源释放与对象销毁绑定**：在对象的析构函数中释放资源。当对象超出其作用域或被显式删除时，析构函数会被调用，确保资源被正确释放。
+	
+	如何使用 RAII 来管理资源
+	
+	以下是一些常见的 RAII 资源管理示例：
+	
+	1. 使用智能指针管理动态内存
+	
+	智能指针是 RAII 的典型应用，用于管理动态分配的内存。`std::unique_ptr` 和 `std::shared_ptr` 是 C++ 标准库中的智能指针。
+	
+	```cpp
+	#include <iostream>
+	#include <memory>
+	
+	class MyClass {
+	public:
+	    MyClass() { std::cout << "MyClass constructor" << std::endl; }
+	    ~MyClass() { std::cout << "MyClass destructor" << std::endl; }
+	};
+	
+	int main() {
+	    {
+	        std::unique_ptr<MyClass> ptr = std::make_unique<MyClass>();
+	        // 当 ptr 超出作用域时，MyClass 对象会自动被销毁，内存被释放
+	    }
+	    // 这里 MyClass 对象已经被销毁
+	
+	    {
+	        std::shared_ptr<MyClass> ptr1 = std::make_shared<MyClass>();
+	        {
+	            std::shared_ptr<MyClass> ptr2 = ptr1;  // 共享所有权
+	        }
+	        // ptr2 超出作用域，MyClass 对象仍然存在，因为 ptr1 还持有它
+	    }
+	    // 这里 MyClass 对象被销毁
+	
+	    return 0;
+	}
+	```
+	
+	2. 使用自定义类管理文件句柄
+	
+	可以定义一个类来封装文件操作，利用 RAII 技术确保文件在使用结束后自动关闭。
+	
+	```cpp
+	#include <iostream>
+	#include <fstream>
+	
+	class FileRAII {
+	private:
+	    std::ofstream file;
+	public:
+	    FileRAII(const std::string &filename) {
+	        file.open(filename);
+	        if (!file.is_open()) {
+	            throw std::runtime_error("Failed to open file");
+	        }
+	    }
+	    
+	    ~FileRAII() {
+	        if (file.is_open()) {
+	            file.close();
+	        }
+	    }
+	
+	    void write(const std::string &data) {
+	        if (file.is_open()) {
+	            file << data;
+	        }
+	    }
+	};
+	
+	int main() {
+	    try {
+	        FileRAII file("example.txt");
+	        file.write("Hello, RAII!");
+	        // 文件在这里被自动关闭
+	    } catch (const std::exception &e) {
+	        std::cerr << e.what() << std::endl;
+	    }
+	
+	    return 0;
+	}
+	```
+	
+	3. 使用标准库中的锁机制
+	
+	C++ 标准库提供了 RAII 风格的锁机制，如 `std::lock_guard` 和 `std::unique_lock`，用于确保互斥锁在使用结束时被自动释放。
+	
+	```cpp
+	#include <iostream>
+	#include <thread>
+	#include <mutex>
+	
+	std::mutex mtx;
+	
+	void print_thread_id(int id) {
+	    std::lock_guard<std::mutex> lock(mtx);
+	    // 在锁的作用域结束时，mtx 会自动解锁
+	    std::cout << "Thread ID: " << id << std::endl;
+	}
+	
+	int main() {
+	    std::thread t1(print_thread_id, 1);
+	    std::thread t2(print_thread_id, 2);
+	
+	    t1.join();
+	    t2.join();
+	
+	    return 0;
+	}
+	```
 
 - 什么是智能指针？如何防止内存泄漏？
+智能指针是一种在面向对象编程中用于自动管理动态分配内存的工具。它们封装了原生指针，并提供了自动化的内存管理功能，以减少内存泄漏和指针操作错误。智能指针在对象生命周期结束时自动释放内存，因此不需要显式地进行内存释放操作。
 
-	- 智能指针用于管理动态内存的对象，其主要目的是在避免内存泄漏和方便资源管理
+在C++中，常见的智能指针包括`std::unique_ptr`、`std::shared_ptr`和`std::weak_ptr`。每种智能指针都有其特定的用途和特性。
+
+### `std::unique_ptr`
+`std::unique_ptr`表示独占所有权的智能指针。它确保一个指针在同一时间内只有一个所有者，适用于管理独占资源。这里std::move()是一个标准库函数，将vec1转化为右值引用，使ptr2可以接管ptr1的资源，而ptr1变成了一个有效但未指定状态的对象，其size()变为0。
+
+```cpp
+#include <memory>
+#include <iostream>
+
+int main() {
+    std::unique_ptr<int> ptr1(new int(10));
+    std::cout << *ptr1 << std::endl;
+
+    // std::unique_ptr<int> ptr2 = ptr1; // 错误：不能复制
+    std::unique_ptr<int> ptr2 = std::move(ptr1); // 正确：转移所有权,通过将左值转换为右值引用来实现资源的转移，从而提高程序的效率。
+    if (!ptr1) {
+        std::cout << "ptr1 is null" << std::endl;
+    }
+    std::cout << *ptr2 << std::endl;
+
+    return 0;
+}
+```
+
+### `std::shared_ptr`
+`std::shared_ptr`表示共享所有权的智能指针。它允许多个指针共享同一块内存，当最后一个`std::shared_ptr`被销毁时，内存才会被释放。
+
+```cpp
+#include <memory>
+#include <iostream>
+
+int main() {
+    std::shared_ptr<int> ptr1 = std::make_shared<int>(10);
+    std::cout << *ptr1 << std::endl;
+
+    std::shared_ptr<int> ptr2 = ptr1; // 共享所有权
+    std::cout << *ptr2 << std::endl;
+
+    std::cout << "Use count: " << ptr1.use_count() << std::endl; // 计数为2
+
+    return 0;
+}
+```
+
+### `std::weak_ptr`
+`std::weak_ptr`是一个不拥有资源的智能指针，它与`std::shared_ptr`配合使用，解决循环引用的问题。当需要访问共享资源但不影响其生命周期时，使用`std::weak_ptr`。
+
+```cpp
+#include <memory>
+#include <iostream>
+
+int main() {
+    std::shared_ptr<int> sp = std::make_shared<int>(10);
+    std::weak_ptr<int> wp = sp; // 不增加引用计数
+
+    if (auto spt = wp.lock()) { // 尝试获取共享指针
+        std::cout << *spt << std::endl;
+    } else {
+        std::cout << "Pointer is expired" << std::endl;
+    }
+
+    sp.reset(); // 释放共享指针
+
+    if (auto spt = wp.lock()) {
+        std::cout << *spt << std::endl;
+    } else {
+        std::cout << "Pointer is expired" << std::endl;
+    }
+
+    return 0;
+}
+```
+
+### 防止内存泄漏
+智能指针通过以下方式防止内存泄漏：
+1. **自动内存管理**：智能指针在离开作用域时自动释放内存。
+2. **防止多次释放**：智能指针确保一个对象只会被删除一次，避免重复释放导致的错误。
+3. **引用计数**：`std::shared_ptr`通过引用计数机制管理共享资源的生命周期。
+4. **弱引用**：`std::weak_ptr`避免循环引用导致的内存泄漏。
+
+使用智能指针时，确保合理选择适合的智能指针类型，以有效管理资源并防止内存泄漏。
+	
 
 - 如何禁止类的对象进行复制操作？
 
