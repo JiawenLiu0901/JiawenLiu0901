@@ -19,15 +19,14 @@ lightgallery: true
 
 ### 什么是拷贝构造函数？
 
-	- 用于通过已经存在的对象创建一个新的对象，新对象是原对象的副本，参数通常是对同类型对象的引用。
+用于通过已经存在的对象创建一个新的对象，新对象是原对象的副本，参数通常是对同类型对象的引用。
 
 ### 什么是赋值运算符(assignment operator)？
 
-	- =
 
 ### 什么是默认构造函数（default constructor)？
 
-	- 默认构造函数指的是一个没有任何参数的构造函数，如果没有一个这样的构造函数存在，或者是private的话，会造成编译错误。如果类里面没有提供任何的构造函数，编译器会提供一个implicit default constructor。如果类里面已经定义过了构造函数，我们就要手动定义默认构造函数，这样的默认构造函数称之为explicit default constructor
+默认构造函数指的是一个没有任何参数的构造函数，如果没有一个这样的构造函数存在，或者是private的话，会造成编译错误。如果类里面没有提供任何的构造函数，编译器会提供一个implicit default constructor。如果类里面已经定义过了构造函数，我们就要手动定义默认构造函数，这样的默认构造函数称之为explicit default constructor
 
 ### 什么时候会调用拷贝构造函数（copy constructor）？
 
