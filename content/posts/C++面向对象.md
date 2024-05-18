@@ -443,20 +443,151 @@ int main() {
 
 ### 如何禁止类的对象进行复制操作？
 
-	- 删除拷贝构造函数和拷贝赋值运算符
+为了禁止类的对象进行复制操作，你需要禁用类的拷贝构造函数和赋值运算符。可以通过以下方式实现：
+
+1. 将拷贝构造函数和赋值运算符声明为私有成员，不提供实现。
+
+```cpp
+class NoCopy {
+private:
+    NoCopy(const NoCopy&);
+    NoCopy& operator=(const NoCopy&);
+
+public:
+    NoCopy() {}
+    // ...
+};
+```
+
+通过将拷贝构造函数和赋值运算符声明为私有成员，你可以防止在类外部调用它们。由于这些函数没有实现，如果在类内部尝试调用它们，会导致编译错误。
+
+2. 使用`delete`关键字（C++11及更高版本）。
+
+```cpp
+class NoCopy {
+public:
+    NoCopy() {}
+    NoCopy(const NoCopy&) = delete;
+    NoCopy& operator=(const NoCopy&) = delete;
+    // ...
+};
+```
+
+通过将拷贝构造函数和赋值运算符标记为`= delete`，你明确告诉编译器不生成这些函数。如果在任何地方尝试调用它们，都会导致编译错误。
+
+示例：
+
+```cpp
+NoCopy obj1;
+NoCopy obj2(obj1);  // 编译错误，拷贝构造函数被禁用
+obj2 = obj1;         // 编译错误，赋值运算符被禁用
+```
+
+3. 使用基类（如`boost::noncopyable`）。
+
+```cpp
+#include <boost/noncopyable.hpp>
+
+class NoCopy : private boost::noncopyable {
+public:
+    NoCopy() {}
+    // ...
+};
+```
+
+通过继承`boost::noncopyable`（或类似的实用工具类），你可以快速地禁用类的复制操作，而无需显式声明拷贝构造函数和赋值运算符。`boost::noncopyable`的实现原理与方法1类似，它将拷贝构造函数和赋值运算符声明为私有成员。
+
+禁止对象复制的用途：
+
+1. 当一个类管理唯一的资源（如文件句柄、线程等）时，复制该类的对象可能会导致资源的重复释放或其他问题。
+2. 当一个类的设计是基于唯一性的（如单例模式），复制该类的对象会违反其设计原则。
+3. 当复制一个对象的开销很大或者没有意义时，禁止复制可以防止意外的性能问题。
+
 
 ## 重载运算与类型转换
 
 ### 什么是运算符重载？（operator overloading）
 
-	- 运算符重载是一种编程语言特性，允许程序员重新定义或者扩展已有的运算符的行为。在 C++ 中，运算符重载是通过创建特定的成员函数或全局函数来实现的。通过运算符重载，可以使用户自定义的类或数据类型支持类似内置数据类型的运算和操作。
+运算符重载（Operator Overloading）是C++的一项特性，它允许你重新定义运算符的行为，使其能够用于用户自定义的类型（类或结构体）。通过运算符重载，你可以使你的自定义类型像内置类型一样支持各种运算符，从而提高代码的可读性和可维护性。
 
 ### 如何重载运算符？
 
-	
+要重载运算符，你需要定义一个特殊的函数，称为运算符重载函数。运算符重载函数的名称由关键字`operator`后跟要重载的运算符符号组成。重载函数可以定义为类的成员函数或全局函数。
+
+以下是重载运算符的几种常见方式：
+
+1. 类的成员函数：
+
+```cpp
+class MyClass {
+public:
+    // 重载二元运算符 +
+    MyClass operator+(const MyClass& other) {
+        // 实现加法操作
+    }
+
+    // 重载前置自增运算符 ++
+    MyClass& operator++() {
+        // 实现自增操作
+        return *this;
+    }
+
+    // 重载后置自增运算符 ++
+    MyClass operator++(int) {
+        MyClass temp(*this);
+        // 实现自增操作
+        return temp;
+    }
+};
+```
+
+2. 全局函数：
+
+```cpp
+// 重载二元运算符 +
+MyClass operator+(const MyClass& lhs, const MyClass& rhs) {
+    // 实现加法操作
+}
+
+// 重载输出运算符 <<
+std::ostream& operator<<(std::ostream& os, const MyClass& obj) {
+    // 实现输出操作
+    return os;
+}
+```
+
+3. 友元函数：
+
+```cpp
+class MyClass {
+public:
+    // 将全局函数声明为友元函数
+    friend MyClass operator+(const MyClass& lhs, const MyClass& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const MyClass& obj);
+};
+
+// 实现友元函数
+MyClass operator+(const MyClass& lhs, const MyClass& rhs) {
+    // 实现加法操作
+}
+
+std::ostream& operator<<(std::ostream& os, const MyClass& obj) {
+    // 实现输出操作
+    return os;
+}
+```
+
+在重载运算符时，需要注意以下几点：
+
+1. 运算符重载函数的参数数量由运算符的操作数决定。一元运算符接受零个或一个参数，二元运算符接受一个或两个参数。
+2. 对于二元运算符，如果重载函数是类的成员函数，那么它只接受一个参数（右操作数），因为左操作数是`this`指针所指向的对象。
+3. 某些运算符必须被定义为类的成员函数，如赋值运算符`=`、下标运算符`[]`和函数调用运算符`()`。
+4. 重载运算符时，尽量保持运算符的原有语义，以避免混淆和错误。
+
 
 ### 重载哪些运算符是合法的？
-	- 可以重载的运算符
+
+可以重载的运算符
 
 | 运算符  | 说明                 | 运算符  | 说明                    |
 |---------|----------------------|---------|-------------------------|
@@ -483,7 +614,7 @@ int main() {
 | `new`   | 动态分配             | `delete`| 动态释放                |
 | `new[]` | 动态数组分配         | `delete[]` | 动态数组释放           |
 
-	- 不能重载的运算符
+不能重载的运算符
 
 | 运算符  | 说明                   |
 |---------|------------------------|
