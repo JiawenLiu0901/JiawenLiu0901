@@ -729,102 +729,97 @@ void* v = p;   // int* 被隐式转换为 void*
 
 ### 什么是多重继承？它有什么优点和缺点？
 
-	- 多重继承是一个类可以从多个父类继承属性和行为。
-
-	- 优点：
-
-	- 缺点：可能引入菱形继承，比如一个类同时继承了两个相同基类的类，而最终的派生类又同时继承了这两个类，可能导致二义性（最终的派生类无法确定应该调用哪一个基类进行实现）
 
 ### 什么是虚继承？它有什么优点和缺点？
 
-	- 通过在继承路径中使用virtual关键字，可以避免在派生类中生成多个基类的实例，从而解决了菱形继承带来的二义性。
+通过在继承路径中使用virtual关键字，可以避免在派生类中生成多个基类的实例，从而解决了菱形继承带来的二义性。
 
 ### 什么是右值引用？如何使用右值引用？（C++11新特性）
 
-	右值引用（Rvalue Reference）是C++11引入的一种新的引用类型，它用于绑定到临时对象或不具名的值（如字面量、表达式等）。右值引用的主要目的是实现移动语义（Move Semantics），以提高程序的性能。
-	
-	右值引用的语法是在类型名称后面加上两个&符号（&&），例如：
-	
-	```cpp
-	int&& rref = 42;
-	```
-	
-	右值引用的特点：
-	1. 绑定到临时对象或不具名的值。
-	2. 允许从临时对象或不具名的值中"窃取"资源，避免不必要的拷贝操作。
-	3. 可以用于实现移动构造函数和移动赋值运算符。
-	4. 具有延长临时对象生命周期的能力。
-	
-	使用右值引用的几种常见方式：
-	
-	1. 实现移动构造函数和移动赋值运算符：
-	```cpp
-	class MyString {
-	public:
-	    // Move constructor
-	    MyString(MyString&& other) : data(other.data) {
-	        other.data = nullptr;
-	    }
-	
-	    // Move assignment operator
-	    MyString& operator=(MyString&& other) {
-	        if (this != &other) {
-	            delete[] data;
-	            data = other.data;
-	            other.data = nullptr;
-	        }
-	        return *this;
-	    }
-	
-	private:
-	    char* data;
-	};
-	```
-	
-	2. 使用`std::move`将左值转换为右值，以便调用移动构造函数或移动赋值运算符：
-	```cpp
-	MyString str1("Hello");
-	MyString str2(std::move(str1)); // 调用移动构造函数
-	str1 = MyString("World"); // 调用移动赋值运算符
-	```
-	
-	3. 在模板函数中使用右值引用作为参数，以实现完美转发（Perfect Forwarding）：
-	```cpp
-	template <typename T>
-	void forwardValue(T&& value) {
-	    processValue(std::forward<T>(value));
+右值引用（Rvalue Reference）是C++11引入的一种新的引用类型，它用于绑定到临时对象或不具名的值（如字面量、表达式等）。右值引用的主要目的是实现移动语义（Move Semantics），以提高程序的性能。
+
+右值引用的语法是在类型名称后面加上两个&符号（&&），例如：
+
+```cpp
+int&& rref = 42;
+```
+
+右值引用的特点：
+1. 绑定到临时对象或不具名的值。
+2. 允许从临时对象或不具名的值中"窃取"资源，避免不必要的拷贝操作。
+3. 可以用于实现移动构造函数和移动赋值运算符。
+4. 具有延长临时对象生命周期的能力。
+
+使用右值引用的几种常见方式：
+
+1. 实现移动构造函数和移动赋值运算符：
+```cpp
+class MyString {
+public:
+    // Move constructor
+    MyString(MyString&& other) : data(other.data) {
+	other.data = nullptr;
+    }
+
+    // Move assignment operator
+    MyString& operator=(MyString&& other) {
+	if (this != &other) {
+	    delete[] data;
+	    data = other.data;
+	    other.data = nullptr;
 	}
-	```
-	
-	4. 在函数返回值中使用右值引用，以避免不必要的拷贝操作：
-	```cpp
-	MyString createString() {
-	    MyString str("Hello");
-	    return std::move(str);
-	}
-	```
-	
-	使用右值引用可以显著提高程序的性能，特别是在处理大型对象或需要频繁移动对象时。但是，使用右值引用也需要注意一些细节，如确保移动后的对象处于合法状态、避免悬空引用等。同时，也要平衡可读性和性能，不要过度追求性能而牺牲代码的可读性和维护性。
+	return *this;
+    }
+
+private:
+    char* data;
+};
+```
+
+2. 使用`std::move`将左值转换为右值，以便调用移动构造函数或移动赋值运算符：
+```cpp
+MyString str1("Hello");
+MyString str2(std::move(str1)); // 调用移动构造函数
+str1 = MyString("World"); // 调用移动赋值运算符
+```
+
+3. 在模板函数中使用右值引用作为参数，以实现完美转发（Perfect Forwarding）：
+```cpp
+template <typename T>
+void forwardValue(T&& value) {
+    processValue(std::forward<T>(value));
+}
+```
+
+4. 在函数返回值中使用右值引用，以避免不必要的拷贝操作：
+```cpp
+MyString createString() {
+    MyString str("Hello");
+    return std::move(str);
+}
+```
+
+使用右值引用可以显著提高程序的性能，特别是在处理大型对象或需要频繁移动对象时。但是，使用右值引用也需要注意一些细节，如确保移动后的对象处于合法状态、避免悬空引用等。同时，也要平衡可读性和性能，不要过度追求性能而牺牲代码的可读性和维护性。
 		
 
 ### 什么是移动构造函数(move constructor)？为什么需要移动构造函数？
 
-	移动构造函数通常用于将资源从一个对象“移动”到另一个对象，而不是进行传统的拷贝操作。这对于处理动态分配的资源，如堆上的内存或其他资源，非常有用，因为移动资源比拷贝资源更高效。
+移动构造函数通常用于将资源从一个对象“移动”到另一个对象，而不是进行传统的拷贝操作。这对于处理动态分配的资源，如堆上的内存或其他资源，非常有用，因为移动资源比拷贝资源更高效。
 
-	移动构造函数的语法如下：
-	class MyClass {
-	public:
-	    // 移动构造函数
-	    MyClass(MyClass&& other) noexcept {
-	        // 进行资源的移动操作，例如，转移指针、拷贝计数等
-	        // ...
-	    }
-	
-	    // 其他成员函数和构造函数
-	    // ...
-	};
+移动构造函数的语法如下：
+class MyClass {
+public:
+    // 移动构造函数
+    MyClass(MyClass&& other) noexcept {
+	// 进行资源的移动操作，例如，转移指针、拷贝计数等
+	// ...
+    }
 
-	移动构造函数的参数类型是右值引用 MyClass&&。移动构造函数通常会在对象的源对象上执行一些操作，例如将指针或资源所有权转移到目标对象，然后将源对象置于一种可析构但不再拥有资源的状态。避免在资源管理上进行深层次的拷贝，提高程序的性能。例如，在返回局部对象的函数中，使用移动构造函数可以避免拷贝：
+    // 其他成员函数和构造函数
+    // ...
+};
+
+移动构造函数的参数类型是右值引用 MyClass&&。移动构造函数通常会在对象的源对象上执行一些操作，例如将指针或资源所有权转移到目标对象，然后将源对象置于一种可析构但不再拥有资源的状态。避免在资源管理上进行深层次的拷贝，提高程序的性能。
 
 ### 什么是抽象类？如何定义抽象类？
 
