@@ -1,12 +1,12 @@
 ---
 weight: 4
-title: "一致性协议常见问题"
-date: 2024-03-20T21:57:40+08:00
+title: "Raft常见问题"
+date: 2024-05-19T21:57:40+08:00
 lastmod: 2024-05-19T16:45:40+08:00
 draft: false
 author: "Jiawen Liu"
 authorLink: "https://jiawenliu0901.github.io"
-description: "一致性协议常见问题"
+description: "Raft常见问题"
 tags: ["KV分布式项目"]
 categories: ["KV分布式项目"]
 lightgallery: true
