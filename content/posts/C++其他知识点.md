@@ -1,6 +1,6 @@
 ---
 weight: 4
-title: "C++知识点整理总结"
+title: "C++知识点（其他）"
 date: 2024-5-20T21:57:40+08:00
 lastmod: 2024-5-20T16:45:40+08:00
 draft: false
